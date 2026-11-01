@@ -231,7 +231,7 @@ const route = () => {
   return { name: parts[0] || "home", arg: parts[1] || "" };
 };
 
-const wordmark = `<a href="#/" class="wordmark"><span class="mark">${ic("bolt", 18)}</span><span class="name">NHANH.</span></a>`;
+const wordmark = `<a href="#/" class="wordmark"><span class="mark">${ic("bolt", 18)}</span><span class="name">Tabulous Beasts</span></a>`;
 
 const tabs = [
   { name: "home", href: "#/", label: "Trang chủ", icon: "home" },
@@ -337,7 +337,7 @@ function homeMobile() {
       ${info("parking", "Gửi xe", "Bãi xe máy miễn phí ngay trước quán")}
     </section>
   </div>
-  <div class="footer-m"><p class="t-strong">NHANH. — cà phê mang đi trong 5 phút</p><p class="t-caption">Hotline ${CONFIG.hotline} · © 2026</p></div>
+  <div class="footer-m"><p class="t-strong">Tabulous Beasts — cà phê mang đi trong 5 phút</p><p class="t-caption">Hotline ${CONFIG.hotline} · © 2026</p></div>
 </div>`;
 }
 
@@ -386,7 +386,7 @@ function homeDesktop() {
   </div></section>
   <div class="promo-d">${ic("bolt")}<span>GIỜ VÀNG 7:00 – 9:00 · Giảm 20% mọi món cà phê khi đặt online</span></div>
   <section class="sec-d"><div class="d-wrap">
-    <div class="sec-head"><h2>Vì sao khách bận rộn chọn NHANH.</h2><p>Mọi tính năng đều nhằm giảm thời gian bạn phải ở trong quán.</p></div>
+    <div class="sec-head"><h2>Vì sao khách bận rộn chọn Tabulous Beasts</h2><p>Mọi tính năng đều nhằm giảm thời gian bạn phải ở trong quán.</p></div>
     <div class="grid4">
       <div class="ft"><div class="iw">${ic("clock")}</div><p class="t-strong">5 phút lấy món</p><p class="t-caption">Pha sẵn theo giờ bạn chọn, đến là có.</p></div>
       <div class="ft"><div class="iw">${ic("smartphone")}</div><p class="t-strong">Đặt trước online</p><p class="t-caption">Lấy ngay hoặc hẹn giờ, thanh toán QR.</p></div>
@@ -427,7 +427,7 @@ function homeDesktop() {
     </div>
   </div></section>
   <footer class="foot-d">
-    <div class="l"><p class="t-h3">NHANH. — cà phê mang đi trong 5 phút</p><p class="t-caption">© 2026 · Bài tập Giai đoạn 3 – Nhóm anh Hiếu</p></div>
+    <div class="l"><p class="t-h3">Tabulous Beasts — cà phê mang đi trong 5 phút</p><p class="t-caption">© 2026 · Bài tập Giai đoạn 3 – Nhóm anh Hiếu</p></div>
     <div class="links"><a href="#/menu">Thực đơn</a><a href="#/order">Tra cứu đơn</a><a href="#/store">Đơn nhóm</a><span>Facebook</span><span>Zalo</span></div>
   </footer>
 </div>`;
@@ -446,7 +446,7 @@ const mapBlock = () => `
   <i style="left:270px;top:0;width:8px;height:100%"></i>
   <i style="left:40px;top:0;width:6px;height:100%"></i>
   <span class="pin">${ic("pin")}</span>
-  <span class="lab t-caption">NHANH. · 350m</span>
+  <span class="lab t-caption">Tabulous Beasts · 350m</span>
 </div>`;
 
 function menuListHTML() {
@@ -572,9 +572,9 @@ function submitOrder() {
 function qrBlock(o) {
   if (o.status !== "pending_payment") return "";
   const img = CONFIG.bank && CONFIG.account
-    ? `<img alt="Mã VietQR" src="https://img.vietqr.io/image/${CONFIG.bank}-${CONFIG.account}-compact2.png?amount=${o.total}&addInfo=${encodeURIComponent("NHANH " + o.code)}&accountName=${encodeURIComponent(CONFIG.accountName)}">`
+    ? `<img alt="Mã VietQR" src="https://img.vietqr.io/image/${CONFIG.bank}-${CONFIG.account}-compact2.png?amount=${o.total}&addInfo=${encodeURIComponent("TABULOUS " + o.code)}&accountName=${encodeURIComponent(CONFIG.accountName)}">`
     : "";
-  return `<div class="payqr"><p class="t-strong">Chuyển khoản ${vnd(o.total)}</p><p class="t-caption">Nội dung: NHANH ${o.code}</p>${img}</div>`;
+  return `<div class="payqr"><p class="t-strong">Chuyển khoản ${vnd(o.total)}</p><p class="t-caption">Nội dung: TABULOUS ${o.code}</p>${img}</div>`;
 }
 
 function orderView(code) {
@@ -692,7 +692,7 @@ function render() {
   else html = topbar() + homeMobile() + homeDesktop() + tabbar("home");
   app.innerHTML = html;
   const titles = { menu: "Thực đơn", cart: "Giỏ hàng", order: "Đơn của bạn", store: "Cửa hàng", staff: "Màn hình bếp", screen: "Gọi số" };
-  document.title = titles[r.name] ? `${titles[r.name]} – NHANH.` : "NHANH. – Cà phê mang đi";
+  document.title = titles[r.name] ? `${titles[r.name]} – Tabulous Beasts` : "Tabulous Beasts – Cà phê mang đi";
   window.scrollTo(0, y);
 }
 
