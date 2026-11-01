@@ -6,7 +6,6 @@ const CONFIG = {
   hotline: "09xx xxx xxx",
   hotlineTel: "",
   address: "123 đường X, Quận 1, TP.HCM",
-  mapsUrl: "https://www.google.com/maps/search/?api=1&query=123+%C4%91%C6%B0%E1%BB%9Dng+X+Qu%E1%BA%ADn+1+TP.HCM",
 };
 
 const TZ = "Asia/Ho_Chi_Minh";
@@ -430,7 +429,7 @@ function homeDesktop() {
       ${row("clock", "Giờ mở cửa", "Thứ 2 – Chủ nhật · 6:30 – 22:00")}
       ${row("parking", "Gửi xe", "Bãi xe máy miễn phí ngay trước quán")}
       ${row("phone", "Hotline", CONFIG.hotline)}
-      <div class="acts-d"><a href="${CONFIG.mapsUrl}" target="_blank" rel="noopener" class="btn primary">CHỈ ĐƯỜNG ${ic("arrow")}</a>${callLink("Gọi quán", "outline")}</div>
+      <div class="acts-d"><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CONFIG.address)}" target="_blank" rel="noopener" class="btn primary">CHỈ ĐƯỜNG ${ic("arrow")}</a>${callLink("Gọi quán", "outline")}</div>
     </div>
   </div></section>
   <footer class="foot-d">
@@ -446,15 +445,7 @@ const callLink = (label, variant, full = false) =>
     : `<span class="btn ${variant}${full ? " full" : ""}">${label}</span>`;
 
 const mapBlock = () => `
-<div class="map">
-  <i style="left:0;top:120px;width:100%;height:16px"></i>
-  <i style="left:150px;top:0;width:14px;height:100%"></i>
-  <i style="left:0;top:40px;width:100%;height:8px"></i>
-  <i style="left:270px;top:0;width:8px;height:100%"></i>
-  <i style="left:40px;top:0;width:6px;height:100%"></i>
-  <span class="pin">${ic("pin")}</span>
-  <span class="lab t-caption">Tabulous Beasts · 350m</span>
-</div>`;
+<div class="map"><iframe title="Bản đồ Tabulous Beasts" src="https://www.google.com/maps?q=${encodeURIComponent(CONFIG.address)}&hl=vi&z=16&output=embed" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></div>`;
 
 function menuListHTML() {
   const q = S.q.trim().toLowerCase();
@@ -634,7 +625,7 @@ function storeView() {
     </div>
     <div class="stack-10">
       ${callLink(`GỌI ${CONFIG.hotline}`, "primary", true)}
-      <a href="${CONFIG.mapsUrl}" target="_blank" rel="noopener" class="btn outline full">Chỉ đường đến quán ${ic("arrow")}</a>
+      <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CONFIG.address)}" target="_blank" rel="noopener" class="btn outline full">Chỉ đường đến quán ${ic("arrow")}</a>
     </div>
   </div>
 </div>
