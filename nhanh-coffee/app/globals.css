@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@theme {
+  --color-espresso: #1f1612;
+  --color-caramel: #c8622a;
+  --color-caramel-soft: #f6dcc8;
+  --color-cream: #fbf6ef;
+  --color-latte: #efe2d1;
+  --color-line: #e2d3c0;
+  --color-muted: #8a7a70;
+  --color-ink-2: #4a3b33;
+  --color-green: #2e7d4f;
+  --color-green-soft: #ddefe3;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --font-sans: var(--font-be-vietnam), system-ui, sans-serif;
+}
+
+body { background: var(--color-cream); color: var(--color-espresso); }
+.text-display-xl { font-size: 44px; line-height: 1.1; font-weight: 800; }
+.text-display-l { font-size: 32px; line-height: 1.15; font-weight: 800; }
+.text-h2 { font-size: 22px; font-weight: 700; }
+.text-h3 { font-size: 18px; font-weight: 700; }
+.text-caption { font-size: 13px; color: var(--color-muted); }
+.ticket { font-size: 80px; line-height: 1; font-weight: 800; }
+@media (min-width: 1024px) { .ticket { font-size: 120px; } }
