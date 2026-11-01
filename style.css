@@ -334,3 +334,8 @@ p { margin: 0; }
   .screen { grid-template-columns: 1fr; padding: 24px 16px; }
   .screen .rn { font-size: 72px; padding: 4px 20px; }
 }
+
+.sizes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.sz { padding: 4px 10px; border-radius: var(--r-pill); border: 1px solid var(--line); background: var(--white); color: var(--ink-2); font-size: 13px; font-weight: 600; letter-spacing: 0.2px; white-space: nowrap; }
+.sz.on { background: var(--caramel-soft); border-color: var(--caramel); color: var(--caramel); }
+.irow .n { display: flex; flex-direction: column; gap: 4px; }
