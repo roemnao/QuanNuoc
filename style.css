@@ -94,6 +94,7 @@ p { margin: 0; }
 .mi .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .mi .tx .note { color: var(--muted); font-size: 14px; line-height: 1.45; }
 .mi .tx .price { font-size: 18px; font-weight: 600; line-height: 1.3; color: var(--caramel); }
+.mi .tx .price .pl { font-size: 13px; font-weight: 500; letter-spacing: 0.2px; color: var(--muted); }
 .mi .add { width: 44px; height: 44px; border-radius: var(--r-md); background: var(--espresso); color: var(--white); display: grid; place-items: center; flex-shrink: 0; }
 
 .card-w { background: var(--white); border-radius: var(--r-lg); padding: 20px; display: flex; flex-direction: column; gap: 12px; }
@@ -300,6 +301,8 @@ p { margin: 0; }
 .irow { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-top: 1px solid var(--line); }
 .irow .n { flex: 1; min-width: 0; font-weight: 600; line-height: 1.4; }
 .irow .p { color: var(--caramel); font-weight: 600; white-space: nowrap; }
+.irow .p { text-align: right; }
+.irow .p .pl { font-size: 13px; font-weight: 500; color: var(--muted); }
 .irow .a { width: 32px; height: 32px; border-radius: var(--r-sm); background: var(--espresso); color: var(--white); display: grid; place-items: center; flex-shrink: 0; }
 .note-d { font-size: 14px; line-height: 1.45; color: var(--muted); }
 .steps3 { display: flex; gap: 24px; }

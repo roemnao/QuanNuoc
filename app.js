@@ -10,7 +10,6 @@ const CONFIG = {
 };
 
 const TZ = "Asia/Ho_Chi_Minh";
-const SIZE_L_EXTRA = 5000;
 const GOLDEN_RATE = 0.2;
 const POINT_UNIT = 10000;
 const FREE_DRINK_POINTS = 50;
@@ -25,18 +24,18 @@ const CATS = [
 ];
 
 const MENU = [
-  { id: "cf-den", cat: "cf", name: "Cà phê đen đá", price: 19000, note: "Robusta Đắk Lắk rang đậm, pha phin" },
-  { id: "cf-sua", cat: "cf", name: "Cà phê sữa đá", price: 25000, note: "Robusta pha phin cùng sữa đặc" },
-  { id: "bac-xiu", cat: "cf", name: "Bạc xỉu", price: 28000, note: "Robusta : Arabica 7:3, vị nhẹ ít đắng" },
-  { id: "cf-muoi", cat: "cf", name: "Cà phê muối", price: 29000, note: "Robusta rang vừa, phủ kem muối" },
-  { id: "cf-dua", cat: "cf", name: "Cà phê cốt dừa đá xay", price: 38000, note: "Cà phê phin cô đặc xay cùng cốt dừa" },
-  { id: "ts-cf", cat: "cf", name: "Trà sữa cà phê", price: 30000, note: "Cà phê và sữa" },
-  { id: "tra-dao", cat: "tea", name: "Trà đào cam sả", price: 30000, note: "Trà đen ủ đào, cam tươi và sả" },
-  { id: "tra-vai", cat: "tea", name: "Trà vải lài", price: 29000, note: "Trà lài thơm, vải ngọt thanh" },
-  { id: "tra-chanh", cat: "tea", name: "Trà chanh mật ong", price: 25000, note: "Chanh tươi, mật ong nguyên chất" },
-  { id: "matcha", cat: "blend", name: "Matcha đá xay", price: 35000, note: "Matcha xay mịn, béo nhẹ" },
-  { id: "socola", cat: "blend", name: "Socola đá xay", price: 35000, note: "Socola đậm vị, kem tươi" },
-  { id: "cam", cat: "other", name: "Nước cam ép", price: 25000, note: "Cam tươi ép nguyên chất" },
+  { id: "cf-den", cat: "cf", name: "Cà phê đen đá", price: 19000, priceL: 24000, note: "Robusta Đắk Lắk rang đậm, pha phin" },
+  { id: "cf-sua", cat: "cf", name: "Cà phê sữa đá", price: 25000, priceL: 30000, note: "Robusta pha phin cùng sữa đặc" },
+  { id: "bac-xiu", cat: "cf", name: "Bạc xỉu", price: 28000, priceL: 33000, note: "Robusta : Arabica 7:3, vị nhẹ ít đắng" },
+  { id: "cf-muoi", cat: "cf", name: "Cà phê muối", price: 29000, priceL: 34000, note: "Robusta rang vừa, phủ kem muối" },
+  { id: "cf-dua", cat: "cf", name: "Cà phê cốt dừa đá xay", price: 38000, priceL: 43000, note: "Cà phê phin cô đặc xay cùng cốt dừa" },
+  { id: "ts-cf", cat: "cf", name: "Trà sữa cà phê", price: 30000, priceL: 35000, note: "Cà phê và sữa" },
+  { id: "tra-dao", cat: "tea", name: "Trà đào cam sả", price: 30000, priceL: 35000, note: "Trà đen ủ đào, cam tươi và sả" },
+  { id: "tra-vai", cat: "tea", name: "Trà vải lài", price: 29000, priceL: 34000, note: "Trà lài thơm, vải ngọt thanh" },
+  { id: "tra-chanh", cat: "tea", name: "Trà chanh mật ong", price: 25000, priceL: 30000, note: "Chanh tươi, mật ong nguyên chất" },
+  { id: "matcha", cat: "blend", name: "Matcha đá xay", price: 35000, priceL: 40000, note: "Matcha xay mịn, béo nhẹ" },
+  { id: "socola", cat: "blend", name: "Socola đá xay", price: 35000, priceL: 40000, note: "Socola đậm vị, kem tươi" },
+  { id: "cam", cat: "other", name: "Nước cam ép", price: 25000, priceL: 30000, note: "Cam tươi ép nguyên chất" },
   { id: "croissant", cat: "other", name: "Croissant bơ", price: 22000, note: "Nướng mới mỗi sáng", noSize: true },
 ];
 
@@ -93,7 +92,7 @@ const isGolden = (d = new Date()) => {
 };
 const addMin = (d, m) => new Date(d.getTime() + m * 60000);
 
-const unit = (item, size) => item.price + (hasSize(item) && size === "L" ? SIZE_L_EXTRA : 0);
+const unit = (item, size) => (hasSize(item) && size === "L" ? item.priceL : item.price);
 
 function totals(lines, now = new Date()) {
   const golden = isGolden(now);
@@ -271,7 +270,7 @@ const navbar = (title, right = "") => `
 const menuItem = (m) => `
 <div class="mi">
   <div class="thumb">${ic("cup", 32)}</div>
-  <div class="tx"><p class="t-strong">${m.name}</p><p class="note">${m.note}</p><p class="price">${vnd(m.price)}</p></div>
+  <div class="tx"><p class="t-strong">${m.name}</p><p class="note">${m.note}</p><p class="price">${vnd(m.price)}${m.priceL ? ` <span class="pl">· Size L ${vnd(m.priceL)}</span>` : ""}</p></div>
   <button class="add" data-act="add" data-id="${m.id}" aria-label="Thêm ${m.name}">${ic("plus")}</button>
 </div>`;
 
@@ -364,7 +363,7 @@ function homeDesktop() {
   const col = (c) => {
     const items = MENU.filter((m) => m.cat === c.id);
     return `<div class="col"><div class="ch t-caption"><b>${c.head}</b><span>· ${items.length} món</span></div>${items
-      .map((m) => `<div class="irow"><p class="n">${m.name}</p><p class="p">${vnd(m.price)}</p><button class="a" data-act="add" data-id="${m.id}" aria-label="Thêm ${m.name}">${ic("plus", 16)}</button></div>`)
+      .map((m) => `<div class="irow"><p class="n">${m.name}</p><p class="p">${vnd(m.price)}${m.priceL ? `<br><span class="pl">Size L ${vnd(m.priceL)}</span>` : ""}</p><button class="a" data-act="add" data-id="${m.id}" aria-label="Thêm ${m.name}">${ic("plus", 16)}</button></div>`)
       .join("")}</div>`;
   };
   const row = (icon, label, value) => `<div class="irow-d"><div class="iw">${ic(icon, 22)}</div><div class="tx"><p class="t-caption">${label}</p><p class="t-strong">${value}</p></div></div>`;
@@ -395,7 +394,7 @@ function homeDesktop() {
     </div>
   </div></section>
   <section class="sec-d tall white" id="thuc-don"><div class="d-wrap">
-    <div class="sec-head row"><div class="l"><h2>Thực đơn</h2><p>Giá size M · Size L +5.000đ/món nước</p></div><a href="#/menu" class="btn dark">ĐẶT MÓN ${ic("arrow")}</a></div>
+    <div class="sec-head row"><div class="l"><h2>Thực đơn</h2><p>Giá size M · giá size L ghi riêng ở từng món</p></div><a href="#/menu" class="btn dark">ĐẶT MÓN ${ic("arrow")}</a></div>
     <div class="cols">${CATS.map(col).join("")}</div>
     <p class="note-d">Hạt chủ lực: Robusta Đắk Lắk rang đậm, pha phin — đậm, nhiều caffeine cho buổi sáng. Bạc xỉu phối thêm Arabica (7:3) cho vị nhẹ.</p>
   </div></section>
@@ -472,7 +471,7 @@ function menuView() {
   return `
 <div class="page">
   <div class="menu-top">
-    <div class="title-row"><h1 class="t-display-l">Thực đơn</h1><span class="size-note t-caption">Size L +5.000đ</span></div>
+    <div class="title-row"><h1 class="t-display-l">Thực đơn</h1></div>
     <label class="search">${ic("search", 20)}<input id="q" type="search" placeholder="Tìm món… (vd: bạc xỉu)" value="${S.q.replace(/"/g, "&quot;")}" autocomplete="off"></label>
     <div class="chips">${CATS.map((c) => `<button class="chip ${!S.q && S.cat === c.id ? "on" : ""}" data-act="cat" data-id="${c.id}">${c.label}</button>`).join("")}</div>
     <div class="golden t-caption">${ic("bolt", 18)}<span>${isGolden() ? "Đang trong giờ vàng: -20% cà phê đặt online" : "Giờ vàng 7:00–9:00: -20% cà phê đặt online"}</span></div>
