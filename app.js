@@ -15,6 +15,7 @@ const GOLDEN_RATE = 0.2;
 const POINT_UNIT = 10000;
 const FREE_DRINK_POINTS = 50;
 const SOON_MINUTES = 5;
+const ICE = ["Bình thường", "Ít đá", "Không đá"];
 
 const CATS = [
   { id: "cf", label: "Cà phê", head: "CÀ PHÊ" },
@@ -95,23 +96,27 @@ const addMin = (d, m) => new Date(d.getTime() + m * 60000);
 const unit = (item, size) => item.price + (hasSize(item) && size === "L" ? SIZE_L_EXTRA : 0);
 
 function totals(lines, now = new Date()) {
+  const golden = isGolden(now);
   let subtotal = 0;
-  let coffee = 0;
+  let discount = 0;
   const items = lines.map((l) => {
     const item = find(l.id);
     const size = hasSize(item) ? l.size : "M";
     const u = unit(item, size);
-    subtotal += u * l.qty;
-    if (item.cat === "cf") coffee += u * l.qty;
-    return { id: item.id, name: item.name, size, qty: l.qty, unit: u };
+    const gross = u * l.qty;
+    const off = golden && item.cat === "cf" ? Math.round(gross * GOLDEN_RATE) : 0;
+    subtotal += gross;
+    discount += off;
+    return { id: item.id, name: item.name, size, ice: hasSize(item) ? l.ice || ICE[0] : "", qty: l.qty, unit: u, net: gross - off };
   });
-  const discount = isGolden(now) ? Math.round(coffee * GOLDEN_RATE) : 0;
   return { items, subtotal, discount, total: subtotal - discount };
 }
 
 const pointsFor = (total) => Math.floor(total / POINT_UNIT);
 
-let cart = read(localStorage, "nhanh-cart", []);
+let cart = read(localStorage, "nhanh-cart", [])
+  .filter((l) => find(l.id))
+  .map((l) => ({ ...l, ice: hasSize(find(l.id)) ? l.ice || ICE[0] : "" }));
 let db = read(localStorage, "nhanh-db", { orders: [], counters: {}, points: {} });
 const saveCart = () => write(localStorage, "nhanh-cart", cart);
 const saveDb = () => write(localStorage, "nhanh-db", db);
@@ -131,31 +136,32 @@ const cartCount = () => cart.reduce((n, l) => n + l.qty, 0);
 const todayOrders = () => db.orders.filter((o) => o.day === dayKey(new Date()));
 const orderBy = (code) => todayOrders().find((o) => o.code === code);
 
+const sameLine = (l, id, size, ice) => l.id === id && l.size === size && l.ice === ice;
+
 function addToCart(id) {
-  const hit = cart.find((l) => l.id === id && l.size === "M");
-  if (hit) hit.qty += 1;
-  else cart.push({ id, size: "M", qty: 1 });
+  const ice = hasSize(find(id)) ? ICE[0] : "";
+  const hit = cart.find((l) => sameLine(l, id, "M", ice));
+  if (hit) hit.qty = Math.min(20, hit.qty + 1);
+  else cart.push({ id, size: "M", ice, qty: 1 });
   saveCart();
 }
 
-function changeQty(id, size, delta) {
-  const l = cart.find((x) => x.id === id && x.size === size);
+function changeQty(id, size, ice, delta) {
+  const l = cart.find((x) => sameLine(x, id, size, ice));
   if (!l) return;
   l.qty = Math.min(20, l.qty + delta);
   cart = cart.filter((x) => x.qty > 0);
   saveCart();
 }
 
-function toggleSize(id, size) {
-  const l = cart.find((x) => x.id === id && x.size === size);
+function editLine(id, size, ice, patch) {
+  const l = cart.find((x) => sameLine(x, id, size, ice));
   if (!l || !hasSize(find(id))) return;
-  const next = size === "M" ? "L" : "M";
-  const other = cart.find((x) => x !== l && x.id === id && x.size === next);
-  if (other) {
-    other.qty = Math.min(20, other.qty + l.qty);
+  Object.assign(l, patch);
+  const twin = cart.find((x) => x !== l && sameLine(x, l.id, l.size, l.ice));
+  if (twin) {
+    twin.qty = Math.min(20, twin.qty + l.qty);
     cart = cart.filter((x) => x !== l);
-  } else {
-    l.size = next;
   }
   saveCart();
 }
@@ -281,7 +287,7 @@ function orderSteps(o) {
   const second = s === "pending_payment" ? "pending" : s === "received" || s === "brewing" ? "active" : "done";
   const third = s === "ready" ? "active" : s === "picked_up" ? "done" : "pending";
   const paidSub = o.paid
-    ? `${hm(new Date(o.receivedAt))} · Đã thanh toán`
+    ? `${hm(new Date(o.receivedAt))} · ${o.pay === "qr" ? "Đã thanh toán QR" : "Đã thu tiền mặt"}`
     : o.pay === "cash"
       ? "Trả tiền mặt tại quầy"
       : "Chờ thanh toán QR";
@@ -289,17 +295,12 @@ function orderSteps(o) {
   return [step(first, "Đã nhận đơn", paidSub), step(second, "Đang pha chế", secondSub), step(third, "Đã xong – mời lấy ly", "Đến quầy TỰ PHỤC VỤ")].join("");
 }
 
-const demoOrder = {
-  code: "042",
-  status: "brewing",
-  paid: true,
-  pay: "qr",
-  receivedAt: new Date().toISOString(),
-  eta: addMin(new Date(), 3).toISOString(),
-};
-
 function homeMobile() {
-  const featured = [MENU[1], MENU[6], MENU[2]];
+  const featured = [
+    { ...MENU[1], note: "Robusta Đắk Lắk rang đậm, pha phin" },
+    MENU[6],
+    { ...MENU[2], note: "Blend Robusta : Arabica 7:3, ít đắng" },
+  ];
   return `
 <div class="home-m">
   <div class="m-head">${wordmark}<a href="#/cart" class="circle-btn" aria-label="Giỏ hàng">${ic("bag")}${cartCount() ? `<span class="count">${cartCount()}</span>` : ""}</a></div>
@@ -342,17 +343,23 @@ function homeMobile() {
 
 function homeDesktop() {
   const last = lastCode() && orderBy(lastCode());
-  const o = last || demoOrder;
-  const eta = o.status === "ready" || o.status === "picked_up" ? "Đã xong – mời lấy ly" : `Còn khoảng ${Math.max(1, Math.ceil((new Date(o.eta) - Date.now()) / 60000))} phút`;
+  let code = "042";
+  let steps = [step("done", "Đã nhận đơn", "07:42"), step("active", "Đang pha chế", "Còn khoảng 3 phút"), step("pending", "Đã xong – mời lấy ly", "Quầy TỰ PHỤC VỤ")];
+  if (last) {
+    code = last.code;
+    const left = Math.max(1, Math.ceil((new Date(last.eta) - Date.now()) / 60000));
+    const done = last.status === "ready" || last.status === "picked_up";
+    steps = [
+      step(last.status === "pending_payment" ? "active" : "done", "Đã nhận đơn", hm(new Date(last.receivedAt))),
+      step(last.status === "pending_payment" ? "pending" : last.status === "received" || last.status === "brewing" ? "active" : "done", "Đang pha chế", done ? "Ly của bạn đã pha xong" : `Còn khoảng ${left} phút`),
+      step(last.status === "ready" ? "active" : last.status === "picked_up" ? "done" : "pending", "Đã xong – mời lấy ly", "Quầy TỰ PHỤC VỤ"),
+    ];
+  }
   const live = `
 <div class="live">
   <div class="top"><span class="t-caption">SỐ CỦA BẠN</span><span class="pill t-caption">● LIVE</span></div>
-  <p class="no">#${o.code}</p>
-  <div class="steps">
-    ${step(o.status === "pending_payment" ? "active" : "done", "Đã nhận đơn", hm(new Date(o.receivedAt)))}
-    ${step(o.status === "pending_payment" ? "pending" : o.status === "received" || o.status === "brewing" ? "active" : "done", "Đang pha chế", eta)}
-    ${step(o.status === "ready" ? "active" : o.status === "picked_up" ? "done" : "pending", "Đã xong – mời lấy ly", "Quầy TỰ PHỤC VỤ")}
-  </div>
+  <p class="no">#${code}</p>
+  <div class="steps">${steps.join("")}</div>
 </div>`;
   const col = (c) => {
     const items = MENU.filter((m) => m.cat === c.id);
@@ -500,9 +507,10 @@ function cartView() {
       const size = hasSize(item) ? l.size : "M";
       const price = unit(item, size) * l.qty;
       const opt = hasSize(item)
-        ? `<button class="opt t-caption" data-act="size" data-id="${l.id}" data-size="${l.size}">Size ${size} · Đổi size</button>`
-        : `<span class="opt t-caption muted">Không có size</span>`;
-      return `<div class="cl"><div class="tx"><p class="t-strong">${item.name}</p>${opt}<p class="t-strong caramel">${vnd(price)}</p></div><div class="stepper"><button class="minus" data-act="dec" data-id="${l.id}" data-size="${l.size}" aria-label="Giảm">${ic("minus", 18)}</button><span class="q t-strong">${l.qty}</span><button class="plus" data-act="inc" data-id="${l.id}" data-size="${l.size}" aria-label="Tăng">${ic("plus", 18)}</button></div></div>`;
+        ? `<span class="opt t-caption"><button data-act="size" data-id="${l.id}" data-size="${l.size}" data-ice="${l.ice}">Size ${size}</button> · <button data-act="ice" data-id="${l.id}" data-size="${l.size}" data-ice="${l.ice}">${l.ice}</button></span>`
+        : "";
+      const keys = `data-id="${l.id}" data-size="${l.size}" data-ice="${l.ice}"`;
+      return `<div class="cl"><div class="tx"><p class="t-strong">${item.name}</p>${opt}<p class="t-strong caramel">${vnd(price)}</p></div><div class="stepper"><button class="minus" data-act="dec" ${keys} aria-label="Giảm">${ic("minus", 18)}</button><span class="q t-strong">${l.qty}</span><button class="plus" data-act="inc" ${keys} aria-label="Tăng">${ic("plus", 18)}</button></div></div>`;
     })
     .join("");
   const scheduled = S.pickup === "scheduled";
@@ -584,7 +592,7 @@ function orderView(code) {
   const pill = done
     ? `<div class="eta done">${ic("check", 18)}<span>Đơn đã xong – mời lấy ly</span></div>`
     : `<div class="eta">${ic("clock", 18)}<span>Xong lúc ~${hm(new Date(o.eta))} · còn ${left} phút</span></div>`;
-  const rows = o.items.map((i) => `<div class="row"><span class="a">${i.qty} × ${i.name}${hasSize(find(i.id)) ? ` (${i.size})` : ""}</span><span class="t-strong">${vnd(i.unit * i.qty)}</span></div>`).join("");
+  const rows = o.items.map((i) => `<div class="row"><span class="a">${i.qty} × ${i.name}</span><span class="t-strong">${vnd(i.net ?? i.unit * i.qty)}</span></div>`).join("");
   return `
 <div class="page">
   ${navbar("Đơn của bạn")}
@@ -596,8 +604,6 @@ function orderView(code) {
     <div class="detail">
       <p class="t-h3">Chi tiết đơn</p>
       ${rows}
-      ${o.discount ? `<div class="row g"><span class="a">Giờ vàng −20% (cà phê)</span><span class="b t-strong">−${vnd(o.discount)}</span></div>` : ""}
-      <div class="row"><span class="t-strong">Tổng cộng</span><span class="t-strong">${vnd(o.total)}</span></div>
       ${o.phone ? `<div class="row g"><span class="a">Điểm tích luỹ</span><span class="b t-strong">+${pointsFor(o.total)} điểm</span></div>` : ""}
     </div>
     <a href="#/" class="btn outline full">Về trang chủ</a>
@@ -645,7 +651,7 @@ function staffView() {
       if (o.status === "ready") acts.push(`<button class="btn dark" data-act="staff" data-code="${o.code}" data-a="picked">Đã lấy</button><button class="btn red-b" data-act="staff" data-code="${o.code}" data-a="redo">Làm lại</button>`);
       return `<div class="oc ${o.priority ? "pri" : ""} ${late ? "late" : ""}">
         <div class="hd"><span class="t-display-l">#${o.code}</span><span class="t-caption muted">${statusLabel[o.status]}${o.priority ? " · ƯU TIÊN" : ""}${late ? " · QUÁ 8 PHÚT" : ""}</span></div>
-        <ul>${o.items.map((i) => `<li>${i.qty}× ${i.name}${hasSize(find(i.id)) ? ` (${i.size})` : ""}</li>`).join("")}</ul>
+        <ul>${o.items.map((i) => `<li>${i.qty}× ${i.name}${i.ice ? ` (${i.size} · ${i.ice})` : ""}</li>`).join("")}</ul>
         <p class="t-small">${vnd(o.total)} · ${o.pay === "qr" ? "QR" : "Tiền mặt"} · ${o.paid ? "ĐÃ THU" : "CHƯA THU"}${o.pickupAt ? ` · hẹn ${hm(new Date(o.pickupAt))}` : ""}</p>
         <div class="acts">${acts.join("")}</div>
       </div>`;
@@ -713,9 +719,10 @@ document.addEventListener("click", (e) => {
   const a = t.dataset.act;
   const id = t.dataset.id;
   if (a === "add") addToCart(id);
-  else if (a === "inc") changeQty(id, t.dataset.size, 1);
-  else if (a === "dec") changeQty(id, t.dataset.size, -1);
-  else if (a === "size") toggleSize(id, t.dataset.size);
+  else if (a === "inc") changeQty(id, t.dataset.size, t.dataset.ice, 1);
+  else if (a === "dec") changeQty(id, t.dataset.size, t.dataset.ice, -1);
+  else if (a === "size") editLine(id, t.dataset.size, t.dataset.ice, { size: t.dataset.size === "M" ? "L" : "M" });
+  else if (a === "ice") editLine(id, t.dataset.size, t.dataset.ice, { ice: ICE[(ICE.indexOf(t.dataset.ice) + 1) % ICE.length] });
   else if (a === "clear") {
     cart = [];
     saveCart();

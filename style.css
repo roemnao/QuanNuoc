@@ -153,7 +153,8 @@ p { margin: 0; }
 
 .cl { display: flex; align-items: center; gap: 12px; background: var(--white); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 14px 16px; }
 .cl .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.cl .tx .opt { color: var(--muted); text-align: left; padding: 0; }
+.cl .tx .opt { color: var(--muted); }
+.cl .tx .opt button { padding: 0; color: inherit; font: inherit; letter-spacing: inherit; }
 .cl .stepper { display: flex; align-items: center; gap: 4px; background: var(--cream); border-radius: var(--r-pill); padding: 4px; }
 .cl .stepper button { width: 36px; height: 36px; border-radius: var(--r-pill); display: grid; place-items: center; }
 .cl .stepper .minus { background: var(--white); }
