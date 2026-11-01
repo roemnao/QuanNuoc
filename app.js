@@ -129,6 +129,7 @@ const S = {
   time: "",
   phone: "",
   err: "",
+  sizes: {},
 };
 
 const cartCount = () => cart.reduce((n, l) => n + l.qty, 0);
@@ -137,11 +138,11 @@ const orderBy = (code) => todayOrders().find((o) => o.code === code);
 
 const sameLine = (l, id, size, ice) => l.id === id && l.size === size && l.ice === ice;
 
-function addToCart(id) {
+function addToCart(id, size = "M") {
   const ice = hasSize(find(id)) ? ICE[0] : "";
-  const hit = cart.find((l) => sameLine(l, id, "M", ice));
+  const hit = cart.find((l) => sameLine(l, id, size, ice));
   if (hit) hit.qty = Math.min(20, hit.qty + 1);
-  else cart.push({ id, size: "M", ice, qty: 1 });
+  else cart.push({ id, size, ice, qty: 1 });
   saveCart();
 }
 
@@ -267,10 +268,17 @@ const navbar = (title, right = "") => `
   ${right}
 </div>`;
 
+const pickedSize = (m) => (m.priceL ? S.sizes[m.id] || "M" : "M");
+
+const sizePills = (m) =>
+  `<div class="sizes" role="radiogroup" aria-label="Chọn size">${[["M", m.price], ["L", m.priceL]]
+    .map(([z, v]) => `<button class="sz ${pickedSize(m) === z ? "on" : ""}" role="radio" aria-checked="${pickedSize(m) === z}" data-act="pick" data-id="${m.id}" data-size="${z}">Size ${z} · ${vnd(v)}</button>`)
+    .join("")}</div>`;
+
 const menuItem = (m) => `
 <div class="mi">
   <div class="thumb">${ic("cup", 32)}</div>
-  <div class="tx"><p class="t-strong">${m.name}</p><p class="note">${m.note}</p><p class="price">${vnd(m.price)}${m.priceL ? ` <span class="pl">· Size L ${vnd(m.priceL)}</span>` : ""}</p></div>
+  <div class="tx"><p class="t-strong">${m.name}</p><p class="note">${m.note}</p>${m.priceL ? sizePills(m) : `<p class="price">${vnd(m.price)}</p>`}</div>
   <button class="add" data-act="add" data-id="${m.id}" aria-label="Thêm ${m.name}">${ic("plus")}</button>
 </div>`;
 
@@ -363,7 +371,7 @@ function homeDesktop() {
   const col = (c) => {
     const items = MENU.filter((m) => m.cat === c.id);
     return `<div class="col"><div class="ch t-caption"><b>${c.head}</b><span>· ${items.length} món</span></div>${items
-      .map((m) => `<div class="irow"><p class="n">${m.name}</p><p class="p">${vnd(m.price)}${m.priceL ? `<br><span class="pl">Size L ${vnd(m.priceL)}</span>` : ""}</p><button class="a" data-act="add" data-id="${m.id}" aria-label="Thêm ${m.name}">${ic("plus", 16)}</button></div>`)
+      .map((m) => `<div class="irow"><div class="n"><p>${m.name}</p>${m.priceL ? sizePills(m) : ""}</div>${m.priceL ? "" : `<p class="p">${vnd(m.price)}</p>`}<button class="a" data-act="add" data-id="${m.id}" aria-label="Thêm ${m.name}">${ic("plus", 16)}</button></div>`)
       .join("")}</div>`;
   };
   const row = (icon, label, value) => `<div class="irow-d"><div class="iw">${ic(icon, 22)}</div><div class="tx"><p class="t-caption">${label}</p><p class="t-strong">${value}</p></div></div>`;
@@ -717,7 +725,8 @@ document.addEventListener("click", (e) => {
   if (!t) return;
   const a = t.dataset.act;
   const id = t.dataset.id;
-  if (a === "add") addToCart(id);
+  if (a === "add") addToCart(id, pickedSize(find(id)));
+  else if (a === "pick") S.sizes[id] = t.dataset.size;
   else if (a === "inc") changeQty(id, t.dataset.size, t.dataset.ice, 1);
   else if (a === "dec") changeQty(id, t.dataset.size, t.dataset.ice, -1);
   else if (a === "size") editLine(id, t.dataset.size, t.dataset.ice, { size: t.dataset.size === "M" ? "L" : "M" });
