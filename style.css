@@ -113,7 +113,7 @@ p { margin: 0; }
 .info .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .info .tx .t-caption { color: var(--muted); }
 
-.footer-m { background: var(--espresso); color: var(--white); padding: 24px; display: flex; flex-direction: column; gap: 6px; }
+.footer-m { background: var(--espresso); color: var(--white); padding: 24px 24px calc(var(--tab-h) + 32px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 6px; }
 .footer-m .t-caption { color: var(--latte); }
 
 .tabbar {
@@ -211,9 +211,6 @@ p { margin: 0; }
 .payqr img { width: 220px; max-width: 100%; border-radius: var(--r-md); background: var(--white); }
 
 .map { position: relative; height: 200px; border-radius: var(--r-lg); background: var(--latte); overflow: hidden; }
-.map i { position: absolute; background: var(--white); display: block; }
-.map .pin { position: absolute; left: 133px; top: 70px; width: 48px; height: 48px; border-radius: var(--r-pill); background: var(--caramel); color: var(--white); display: grid; place-items: center; }
-.map .lab { position: absolute; left: 188px; top: 80px; background: var(--espresso); color: var(--white); padding: 6px 10px; border-radius: var(--r-pill); white-space: nowrap; }
 
 .staff { padding: 24px 16px 48px; max-width: 1200px; margin: 0 auto; }
 .staff h1 { margin-bottom: 16px; }
@@ -339,3 +336,4 @@ p { margin: 0; }
 .sz { padding: 4px 10px; border-radius: var(--r-pill); border: 1px solid var(--line); background: var(--white); color: var(--ink-2); font-size: 13px; font-weight: 600; letter-spacing: 0.2px; white-space: nowrap; }
 .sz.on { background: var(--caramel-soft); border-color: var(--caramel); color: var(--caramel); }
 .irow .n { display: flex; flex-direction: column; gap: 4px; }
+.map iframe { display: block; width: 100%; height: 100%; border: 0; }
